@@ -1,52 +1,19 @@
-const axios = require('axios');
-
-export default async function handler(req, res) {
-  // ১. ফেসবুক ওয়েব-হুক ভেরিফিকেশন (GET request)
+export default function handler(req, res) {
   if (req.method === 'GET') {
+    // ফেসবুক ভেরিফিকেশন কোড
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    // এখানে 'MY_VERIFY_TOKEN' আপনার নিজের দেওয়া একটি সিক্রেট কোড
     if (mode === 'subscribe' && token === 'MY_VERIFY_TOKEN') {
+      console.log('WEBHOOK_VERIFIED');
       return res.status(200).send(challenge);
     } else {
       return res.status(403).send('Forbidden');
     }
-  }
-
-  // ২. কমেন্ট হ্যান্ডেল করা (POST request)
-  if (req.method === 'POST') {
-    const data = req.body;
-
-    if (data.object === 'page') {
-      data.entry.forEach(entry => {
-        entry.changes.forEach(change => {
-          if (change.field === 'feed' && change.value.item === 'comment') {
-            const commentId = change.value.comment_id;
-            const message = change.value.message;
-
-            // বটের লজিক: ধরুন কেউ 'দাম' লিখলে রিপ্লাই দেবে
-            if (message && message.toLowerCase().includes('দাম')) {
-              sendReply(commentId, "আমাদের পণ্যের দাম জানতে মেসেজ করুন!");
-            }
-          }
-        });
-      });
-      return res.status(200).send('EVENT_RECEIVED');
-    }
-  }
-}
-
-// ফেসবুক এপিআই-তে মেসেজ পাঠানোর ফাংশন
-async function sendReply(commentId, text) {
-  const url = `https://graph.facebook.com/v19.0/${commentId}/replies`;
-  try {
-    await axios.post(url, {
-      message: text,
-      access_token: process.env.PAGE_ACCESS_TOKEN
-    });
-  } catch (error) {
-    console.error("Error sending reply:", error.response ? error.response.data : error.message);
+  } else if (req.method === 'POST') {
+    // ফেসবুক থেকে কমেন্ট/মেসেজ আসলে
+    console.log('Webhook received:', JSON.stringify(req.body, null, 2));
+    return res.status(200).send('EVENT_RECEIVED');
   }
 }
