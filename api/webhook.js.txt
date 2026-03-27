@@ -1,19 +1,17 @@
 export default function handler(req, res) {
   if (req.method === 'GET') {
-    // ফেসবুক ভেরিফিকেশন কোড
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
+    console.log('GET Request received, mode:', mode, 'token:', token); // লগ চেক করার জন্য
+
     if (mode === 'subscribe' && token === 'MY_VERIFY_TOKEN') {
-      console.log('WEBHOOK_VERIFIED');
       return res.status(200).send(challenge);
     } else {
       return res.status(403).send('Forbidden');
     }
   } else if (req.method === 'POST') {
-    // ফেসবুক থেকে কমেন্ট/মেসেজ আসলে
-    console.log('Webhook received:', JSON.stringify(req.body, null, 2));
     return res.status(200).send('EVENT_RECEIVED');
   }
 }
