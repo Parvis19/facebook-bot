@@ -1,17 +1,17 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    console.log('GET Request received, mode:', mode, 'token:', token); // লগ চেক করার জন্য
-
     if (mode === 'subscribe' && token === 'MY_VERIFY_TOKEN') {
-      return res.status(200).send(challenge);
+      res.status(200).send(challenge);
     } else {
-      return res.status(403).send('Forbidden');
+      res.status(403).send('Forbidden');
     }
   } else if (req.method === 'POST') {
-    return res.status(200).send('EVENT_RECEIVED');
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.status(405).send('Method Not Allowed');
   }
-}
+};
