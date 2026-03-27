@@ -1,0 +1,30 @@
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  // ফেসবুক ভেরিফিকেশন (GET)
+  if (req.method === 'GET' && req.url.startsWith('/api/webhook')) {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const mode = url.searchParams.get('hub.mode');
+    const token = url.searchParams.get('hub.verify_token');
+    const challenge = url.searchParams.get('hub.challenge');
+
+    if (mode === 'subscribe' && token === 'MY_VERIFY_TOKEN') {
+      res.writeHead(200);
+      res.end(challenge);
+    } else {
+      res.writeHead(403);
+      res.end('Forbidden');
+    }
+  } 
+  // ফেসবুকের পোস্ট রিকোয়েস্ট (POST)
+  else if (req.method === 'POST' && req.url.startsWith('/api/webhook')) {
+    res.writeHead(200);
+    res.end('EVENT_RECEIVED');
+  } 
+  else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+server.listen(3000);
