@@ -1,4 +1,5 @@
 export default function handler(req, res) {
+  // ফেসবুক ভেরিফিকেশন (সব সময়ের জন্য)
   if (req.method === 'GET') {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
@@ -9,10 +10,12 @@ export default function handler(req, res) {
     } else {
       return res.status(403).send('Forbidden');
     }
-  } else if (req.method === 'POST') {
-    // ফেসবুক থেকে কমেন্ট আসলে এখানে আসবে
+  } 
+
+  // ফেসবুক থেকে ইভেন্ট আসলে
+  if (req.method === 'POST') {
     return res.status(200).send('EVENT_RECEIVED');
-  } else {
-    return res.status(405).send('Method Not Allowed');
   }
+
+  res.status(405).send('Method Not Allowed');
 }
